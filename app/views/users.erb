@@ -1,0 +1,188 @@
+<script type="text/javascript">
+  $(document).ready(function(){ 
+      // $("#tabs li:eq(0) a").tab('show');
+      $("#update-form input").prop('disabled', true);
+      
+      $("#edit").click(function(){
+        $("#update-form input").prop('disabled', false);
+        $("#edit").hide();
+      })
+
+      $(".favorite-remove").click(function(e){
+        e.preventDefault();
+
+        var self = this;
+
+        console.log("favorite-remove clicked");
+        var id = $(this).data("attr");
+
+        console.log(id);
+        $.ajax({
+          url: "/favorites/"+ id +"/remove",
+          method: "POST",
+          success: function(data){
+            $(self).closest("tr").remove();
+            console.log(data);
+          }
+        })
+      })
+  });
+
+</script>
+
+<div class="row container center-block">
+  <div class="col-md-1"></div>
+  <div class="col-xs-12 col-md-10">
+      <div class="tab-content">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOne">
+              <h4 class="panel-title">
+                <div style="cursor:pointer" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Edit Profile
+                </div>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div class="panel-body">
+                <div class="col-md-10 col-xs-12">
+                  <form action="/users/<%=current_user.id%>/edit" method= "POST" id='update-form' class="form-horizontal">
+                    <h3>
+                      User Profile
+                      <button id ="edit" type="button" class=" btn btn-default btn-sm" name="edit">Edit</button>
+                    </h3>
+
+                    <div class="form-group edit-user">
+                      <label for="username" class="control-label col-sm-2 col-xs-12">Username</label>
+                      <div class="col-sm-10 col-xs-12">
+                        <input type="text" class="form-control" name="username" placeholder="Username" value="<%= current_user.username %>" required>
+                      </div>
+                    </div>          
+                    <div class="form-group">
+                      <label for="email" class="control-label col-sm-2 col-xs-12">Email</label>
+                      <div class="col-sm-10 col-xs-12">
+                        <input type="text" class="form-control" name="email" placeholder="Email" value="<%= current_user.email %>" required>
+                      </div>
+                    </div>          
+                    <div class="form-group">
+                      <label for="password" class="control-label col-sm-2 col-xs-12">Password</label>
+                      <div class="col-sm-10 col-xs-12">
+                        <input type="password" class="form-control"name='password' placeholder="Password" value ="<%= current_user.password %>" required>
+                      </div>
+                    </div>          
+                    <div class="form-group">
+                      <div class="col-sm-offset-2 col-sm-3 col-xs-12">
+                        <input type="submit" class="form-control btn btn-default" name="submit" value="Save">
+                      </div>
+                      <div class=" col-sm-3 col-xs-12">
+                        <input type="reset" class="form-control btn btn-default" name="submit" value="Cancel">
+                      </div>
+                    </div>          
+                  </form>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTwo">
+              <h4 class="panel-title">
+                <div style="cursor:pointer" class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  Favorites
+                </div>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <% if current_user.favorites.all.length > 0; %>
+                      <table class="table table-hover table-responsive">
+                        <thead>
+                          <tr>
+                            <th>Movie</th>
+                            <th>Added On</th>
+                            <th>                          
+                              <form action="/favorites/remove" method= "POST" class="form-inline">
+                                <button type="submit" class="btn btn-xs btn-danger">Remove All</button>
+                              </form>
+                            </th>
+                          </tr>
+                        </thead>
+                        <% current_user.favorites.all.each do |favorite|%>
+                          <tr>
+                            <td><%= Movie.find_by(id: favorite.movie_id).name %></td>
+                            <td><%= favorite.updated_at %></td>
+                            <td>
+                              <form action="/favorites/<%= favorite.id %>/remove" method= "POST" class="form-inline">
+                                <button type="submit" class="favorite-remove btn btn-xs btn-danger" data-attr="<%= favorite.id %>">Remove</button>
+                              </form>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </table>
+                    <% else %>
+                      <div class="col-xs-12"> 
+                        Please add some Favorites
+                      </div>    
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+              <h4 class="panel-title">
+                <div style="cursor:pointer" class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Reviews
+                </div>
+              </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <% if current_user.reviews.all.length > 0; %>
+                      <table class="table table-hover table-responsive">
+                        <thead>
+                          <tr>
+                            <th>Movie</th>
+                            <th>Rating</th>
+                            <th>Comments</th>
+                            <th>
+                              <form action="/reviews/remove" method= "POST" class="form-inline">
+                                <button type="submit" class="btn btn-xs btn-danger">Delete All</button>
+                              </form>
+                            </th>
+                          </tr>
+                        </thead>
+                        <% current_user.reviews.all.each do |review|%>
+                          <tr>
+                            <td><%= Movie.find_by(id: review.movie_id).name %></td>
+                            <td><%= review.rating %></td>
+                            <td><%= review.comments %></td>
+                            <td>
+                              <form action="/reviews/<%= review.id %>/remove" method= "POST" class="form-inline">
+                                <button type="submit" class="btn btn-xs btn-danger">Delete</button>
+                              </form>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </table>
+                    <% else %>
+                      <div class="col-xs-12"> 
+                        Please add some Reviews
+                      </div>    
+                    <% end %>
+                  </div>
+                </div>                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+  <div class="col-md-1"></div>
+</div>

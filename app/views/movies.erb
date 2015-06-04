@@ -1,0 +1,73 @@
+<% if current_user == nil %>
+  <div class="row container center-block">
+    <div class="col-xs-12">
+        <h1>
+          <%=@movie.name%>
+        </h1>
+        <img class=".img-responsive" src="<%= @movie.poster_url%>" title="<%= @movie.name %>">
+    </div>
+  </div>
+  <div class="row container center-block">
+    <div class="col-xs-12">
+        <h3>
+          Please login to Comment
+        </h3>
+    </div>
+  </div>
+
+   <div class = "row container center-block">
+    <div class="col-xs-12">
+      <h3>Reviews</h3>
+      <%current_movie.reviews.each do |review|%>
+        <p><%=review.rating%> <%=review.comments%></p>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+
+  <div class="row container center-block">
+    <div class="col-xs-12">
+      <form action ="/favorites/add/" method="POST" id="favorites">
+        <h1>
+          <%=@movie.name%>
+          <% if @has_favorited %>
+            <input id='fav_button' class='btn btn-xs btn-success' type="submit" name="submit" value="+ Favorites">
+            <%else%>
+            <input class='btn btn-xs btn-danger' type="submit" name="submit" value="- Favorites">
+          <% end %>
+        </h1>
+        <img class=".img-responsive" src="<%= @movie.poster_url%>" title="<%= @movie.name %>">
+      </form>
+    </div>
+  </div>
+
+  <div class="row container center-block">
+    <div class="col-xs-12">
+      <form action="/comments/new/" method= "POST" id ="comments" class="form">
+        <h3>Add Review</h3>
+        <p>
+            <label for="rating">Rating</label>
+            <!-- change to radio butttons -->
+            <input type="text" name="rating" placeholder="Rating" required>
+        </p>
+        <p>
+            <label for="comments">Comments</label>
+            <input type="text" name='comments' placeholder="Comments" required>
+        </p>
+        <p>
+            <input type="submit" name="submit" value="Comments">
+        </p>       
+      </form>
+    </div>
+  </div>
+
+  <div class = "row container center-block">
+    <div class="col-xs-12">
+      <h3>Reviews</h3>
+      <%current_movie.reviews.each do |review|%>
+        <p><%=review.rating%> <%=review.comments%></p>
+      <% end %>
+    </div>
+  </div>
+
+<% end %>
